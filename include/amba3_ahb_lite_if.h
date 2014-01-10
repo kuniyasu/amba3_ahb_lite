@@ -216,11 +216,11 @@ public:
 		end_module();
 	}
 
-	virtual void apb_reset(){
+	virtual void ahb_lite_reset(){
 		base_class::psel = false;
 	}
 
-	virtual bool apb_write(const prot_type& prot, const address_type& addr, const strb_type& strb, const data_type& dt){
+	virtual bool ahb_lite_write(const prot_type& prot, const address_type& addr, const strb_type& strb, const data_type& dt){
 		bool slverr = false;
 		{
 			base_class::psel = true;
@@ -244,7 +244,7 @@ public:
 		return slverr;
 	}
 
-	virtual bool apb_read(const prot_type& prot, const address_type& addr, data_type& dt){
+	virtual bool ahb_lite_read(const prot_type& prot, const address_type& addr, data_type& dt){
 		bool slverr = false;
 
 		{
@@ -344,16 +344,16 @@ public:
 		end_module();
 	}
 
-	virtual void apb_reset(){
-		cb_port->apb_reset();
+	virtual void ahb_lite_reset(){
+		cb_port->ahb_lite_reset();
 	}
 
-	virtual bool apb_write(const prot_type& prot, const address_type& ad, const strb_type& strb, const data_type& dt){
-		return cb_port->apb_write(prot, ad, strb, dt);
+	virtual bool ahb_lite_write(const prot_type& prot, const address_type& ad, const strb_type& strb, const data_type& dt){
+		return cb_port->ahb_lite_write(prot, ad, strb, dt);
 	}
 
-	virtual bool apb_read(const prot_type& prot, const address_type& ad, data_type& dt){
-		return cb_port->apb_read(prot, ad, dt);
+	virtual bool ahb_lite_read(const prot_type& prot, const address_type& ad, data_type& dt){
+		return cb_port->ahb_lite_read(prot, ad, dt);
 	}
 
 	void bind(inf_type& p){
@@ -409,7 +409,7 @@ public:
 
 	void bus_thread(){
 		{
-			apb_reset();
+			ahb_lite_reset();
 			base_class::pready  = false;
 			base_class::prdata  = data_type();
 			base_class::pslverr = false;
@@ -442,9 +442,9 @@ public:
 			}
 
 			if( write == true ){
-				slverr = apb_write(prot, addr, strb, wdata);
+				slverr = ahb_lite_write(prot, addr, strb, wdata);
 			}else{
-				slverr = apb_read(prot, addr, rdata);
+				slverr = ahb_lite_read(prot, addr, rdata);
 			}
 
 
@@ -572,8 +572,8 @@ public:
 	typedef sc_uint<ADWIDTH> address_type;
 	typedef sc_uint<3> prot_type;
 
-	virtual void apb_reset(){}
-	virtual bool apb_write(const prot_type& prot, const address_type& ad, const strb_type& strb, const data_type& dt){
+	virtual void ahb_lite_reset(){}
+	virtual bool ahb_lite_write(const prot_type& prot, const address_type& ad, const strb_type& strb, const data_type& dt){
 		 tlm::tlm_generic_payload trans;
 		 sc_time time;
 
@@ -587,7 +587,7 @@ public:
 		 }
 	}
 
-	virtual bool  apb_read(const prot_type& prot, const address_type& ad, data_type& dt){
+	virtual bool  ahb_lite_read(const prot_type& prot, const address_type& ad, data_type& dt){
 		 tlm::tlm_generic_payload trans;
 		 sc_time time;
 
@@ -642,19 +642,19 @@ public:
 	sc_export<inf_type> cb_port;
 	void bind(inf_type& if_class){
 		cb_port(if_class);
-		apb_reset();
+		ahb_lite_reset();
 	}
 
-	virtual void apb_reset(){
-		cb_port->apb_reset();
+	virtual void ahb_lite_reset(){
+		cb_port->ahb_lite_reset();
 	}
 
-	virtual bool apb_write(const prot_type& prot, const address_type& ad, const strb_type& strb, const data_type& dt){
-		return cb_port->apb_write(prot, ad, strb, dt);
+	virtual bool ahb_lite_write(const prot_type& prot, const address_type& ad, const strb_type& strb, const data_type& dt){
+		return cb_port->ahb_lite_write(prot, ad, strb, dt);
 	}
 
-	virtual bool  apb_read(const prot_type& prot, const address_type& ad, data_type& dt){
-		return cb_port->apb_read(prot,ad,dt);
+	virtual bool  ahb_lite_read(const prot_type& prot, const address_type& ad, data_type& dt){
+		return cb_port->ahb_lite_read(prot,ad,dt);
 	}
 
 };

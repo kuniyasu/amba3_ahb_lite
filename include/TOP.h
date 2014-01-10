@@ -12,8 +12,8 @@
 
 #include "amba3_ahb_lite_if.h"
 
-#define ioMode TLM2LT
-//#define ioMode PIN
+//#define ioMode TLM2LT
+#define ioMode PIN
 
 
 class InitiatorDUT:public sc_module{
@@ -53,12 +53,12 @@ public:
 	typedef if_type::address_type address_type;
 	typedef if_type::prot_type 	  prot_type;
 
-	virtual void apb_reset(){}
-	virtual bool apb_write(const prot_type& prot, const address_type& ad, const strb_type& strb, const data_type& dt){
+	virtual void ahb_lite_reset(){}
+	virtual bool ahb_lite_write(const prot_type& prot, const address_type& ad, const strb_type& strb, const data_type& dt){
 		return false;
 	}
 
-	virtual bool  apb_read(const prot_type& prot, const address_type& ad, data_type& dt){
+	virtual bool  ahb_lite_read(const prot_type& prot, const address_type& ad, data_type& dt){
 		return false;
 	}
 };
