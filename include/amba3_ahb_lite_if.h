@@ -34,16 +34,18 @@ public:
 	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
 	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
 	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
+	enum {OKAY=0, EORROR=1} resp;
 
 	typedef sc_uint<2> trans_type;
 	typedef sc_uint<ADWIDTH> address_type;
 	typedef sc_uint<3> burst_type;
 	typedef sc_uint<3> size_type;
-
+	typedef sc_uint<4> prot_type;
 	typedef sc_uint<BUSWIDTH> data_type;
+
+
 	typedef sc_uint<BUSWIDTH/8> strb_type;
 
-	typedef sc_uint<3> prot_type;
 
 	virtual void ahb_lite_reset() = 0;
 	virtual bool ahb_lite_write(const prot_type& prot, const address_type& ad, const strb_type& strb, const data_type& dt) = 0;
@@ -74,25 +76,29 @@ public:
 	sc_signal<bool> hwrite;
 	sc_signal<burst_type>hburst;
 	sc_signal<size_type>hsize;
-
-	sc_signal<prot_type> hprot;
-	sc_signal<bool> hready;
-	sc_signal<strb_type> pstrb;
 	sc_signal<data_type> hwdata;
 	sc_signal<data_type> hrdata;
-	sc_signal<bool> pslverr;
+	sc_signal<bool> hmastlock;
+	sc_signal<bool> hready;
+	sc_signal<bool> hreadyout;
+	sc_signal<prot_type> hprot;
+	sc_signal<bool> hresp;
 
 
 	ahb3_lite_base_chain(const char* name=sc_gen_unique_name("ahb3_lite_base_chain")):
 	hsel( PIN_NAME(name,"hsel" )),
+	htrans( PIN_NAME(name,"htrans" )),
 	haddr(PIN_NAME(name,"haddr")),
-	hprot(PIN_NAME(name,"hprot")),
 	hwrite(PIN_NAME(name,"hwrite")),
-	hready(PIN_NAME(name,"hready")),
-	pstrb(PIN_NAME(name,"pstrb")),
+	hburst(PIN_NAME(name,"hburst")),
+	hsize(PIN_NAME(name,"hsize")),
 	hwdata(PIN_NAME(name,"hwdata")),
 	hrdata(PIN_NAME(name,"hrdata")),
-	pslverr(PIN_NAME(name,"pslverr")){}
+	hmastlock(PIN_NAME(name,"hmastlock")),
+	hready(PIN_NAME(name,"hready")),
+	hreadyout(PIN_NAME(name,"hreadyout")),
+	hprot(PIN_NAME(name,"hprot")),
+	hresp(PIN_NAME(name,"hresp")){}
 
 };
 
@@ -100,56 +106,76 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH, class MODE=PIN>
 class ahb3_lite_base_port{
 public:
+	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
+	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
+	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
+
+	typedef sc_uint<2> trans_type;
+	typedef sc_uint<ADWIDTH> address_type;
+	typedef sc_uint<3> burst_type;
+	typedef sc_uint<3> size_type;
+
 	typedef sc_uint<BUSWIDTH> data_type;
 	typedef sc_uint<BUSWIDTH/8> strb_type;
-	typedef sc_uint<ADWIDTH> address_type;
 	typedef sc_uint<3> prot_type;
 
 	sc_out<bool> hsel;
+	sc_out<trans_type> htrans;
 	sc_out<address_type> haddr;
-	sc_out<prot_type> hprot;
 	sc_out<bool> hwrite;
-	sc_in<bool>  hready;
-	sc_out<strb_type> pstrb;
+	sc_out<burst_type>hburst;
+	sc_out<size_type>hsize;
 	sc_out<data_type> hwdata;
-
 	sc_in<data_type> hrdata;
-	sc_in<bool> pslverr;
+	sc_out<bool> hmastlock;
+	sc_in<bool> hready;
+	sc_out<prot_type> hprot;
+	sc_in<bool> hresp;
+
 
 	ahb3_lite_base_port(const char* name=sc_gen_unique_name("ahb3_lite_base_port")):
 	hsel( PIN_NAME(name,"hsel" )),
+	htrans( PIN_NAME(name,"htrans" )),
 	haddr(PIN_NAME(name,"haddr")),
-	hprot(PIN_NAME(name,"hprot")),
 	hwrite(PIN_NAME(name,"hwrite")),
-	hready(PIN_NAME(name,"hready")),
-	pstrb(PIN_NAME(name,"pstrb")),
+	hburst(PIN_NAME(name,"hburst")),
+	hsize(PIN_NAME(name,"hsize")),
 	hwdata(PIN_NAME(name,"hwdata")),
 	hrdata(PIN_NAME(name,"hrdata")),
-	pslverr(PIN_NAME(name,"pslverr")){}
+	hmastlock(PIN_NAME(name,"hmastlock")),
+	hready(PIN_NAME(name,"hready")),
+	hprot(PIN_NAME(name,"hprot")),
+	hresp(PIN_NAME(name,"hresp")){}
 
 
 	void bind(ahb3_lite_base_chain<ADWIDTH,BUSWIDTH>& c){
 		hsel(c.hsel);
+		htrans(c.htrans);
 		haddr(c.haddr);
+		hwrite(c.hwrite);
+		hburst(c.hburst);
+		hsize(c.hsize);
+		hwrite(c.hwrite);
+		hrdata(c.hrdata);
+		hmastlock(c.hmastlock);
 		hready(c.hready);
 		hprot(c.hprot);
-		hwrite(c.hwrite);
-		pstrb(c.pstrb);
-		hwdata(c.hwdata);
-		hrdata(c.hrdata);
-		pslverr(c.pslverr);
+		hresp(c.hresp);
 	}
 
 	void bind(ahb3_lite_base_port<ADWIDTH,BUSWIDTH,MODE>& c){
 		hsel(c.hsel);
+		htrans(c.htrans);
 		haddr(c.haddr);
+		hwrite(c.hwrite);
+		hburst(c.hburst);
+		hsize(c.hsize);
+		hwrite(c.hwrite);
+		hrdata(c.hrdata);
+		hmastlock(c.hmastlock);
 		hready(c.hready);
 		hprot(c.hprot);
-		hwrite(c.hwrite);
-		pstrb(c.pstrb);
-		hwdata(c.hwdata);
-		hrdata(c.hrdata);
-		pslverr(c.pslverr);
+		hresp(c.hresp);
 	}
 
 };
@@ -157,54 +183,79 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH, class MODE=PIN>
 class ahb3_lite_base_export{
 public:
+	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
+	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
+	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
+
+	typedef sc_uint<2> trans_type;
+	typedef sc_uint<ADWIDTH> address_type;
+	typedef sc_uint<3> burst_type;
+	typedef sc_uint<3> size_type;
+
 	typedef sc_uint<BUSWIDTH> data_type;
 	typedef sc_uint<BUSWIDTH/8> strb_type;
-	typedef sc_uint<ADWIDTH> address_type;
 	typedef sc_uint<3> prot_type;
 
 	sc_in<bool> hsel;
+	sc_in<trans_type> htrans;
 	sc_in<address_type> haddr;
-	sc_in<prot_type> hprot;
 	sc_in<bool> hwrite;
-	sc_out<bool> hready;
-	sc_in<strb_type> pstrb;
+	sc_in<burst_type>hburst;
+	sc_in<size_type>hsize;
 	sc_in<data_type> hwdata;
 	sc_out<data_type> hrdata;
-	sc_out<bool> pslverr;
+	sc_in<bool> hmastlock;
+	sc_out<bool> hready;
+	sc_out<bool> hreadyout;
+	sc_in<prot_type> hprot;
+	sc_out<bool> hresp;
+
 
 	ahb3_lite_base_export(const char* name=sc_gen_unique_name("ahb3_lite_base_export")):
 	hsel( PIN_NAME(name,"hsel" )),
+	htrans(PIN_NAME(name,"htrans")),
 	haddr(PIN_NAME(name,"haddr")),
-	hprot(PIN_NAME(name,"hprot")),
 	hwrite(PIN_NAME(name,"hwrite")),
-	hready(PIN_NAME(name,"hready")),
-	pstrb(PIN_NAME(name,"pstrb")),
+	hburst(PIN_NAME(name,"hburst")),
+	hsize(PIN_NAME(name,"hsize")),
 	hwdata(PIN_NAME(name,"hwdata")),
 	hrdata(PIN_NAME(name,"hrdata")),
-	pslverr(PIN_NAME(name,"pslverr")){}
+	hmastlock(PIN_NAME(name,"hmastelock")),
+	hready(PIN_NAME(name,"hready")),
+	hreadyout(PIN_NAME(name,"hreadyout")),
+	hprot(PIN_NAME(name,"hprot")),
+	hresp(PIN_NAME(name,"hresp")){}
 
 	void bind(ahb3_lite_base_chain<ADWIDTH,BUSWIDTH>& c){
 		hsel(c.hsel);
+		htrans(c.htrans);
 		haddr(c.haddr);
-		hready(c.hready);
-		hprot(c.hprot);
 		hwrite(c.hwrite);
-		pstrb(c.pstrb);
-		hwdata(c.hwdata);
+		hburst(c.hburst);
+		hsize(c.hsize);
+		hwrite(c.hwrite);
 		hrdata(c.hrdata);
-		pslverr(c.pslverr);
+		hmastlock(c.hmastlock);
+		hready(c.hready);
+		hredyout(c.hreadyout);
+		hprot(c.hprot);
+		hresp(c.hresp);
 	}
 
 	void bind(ahb3_lite_base_export<ADWIDTH,BUSWIDTH,MODE>& c){
 		hsel(c.hsel);
+		htrans(c.htrans);
 		haddr(c.haddr);
-		hready(c.hready);
-		hprot(c.hprot);
 		hwrite(c.hwrite);
-		pstrb(c.pstrb);
-		hwdata(c.hwdata);
+		hburst(c.hburst);
+		hsize(c.hsize);
+		hwrite(c.hwrite);
 		hrdata(c.hrdata);
-		pslverr(c.pslverr);
+		hmastlock(c.hmastlock);
+		hready(c.hready);
+		hredyout(c.hreadyout);
+		hprot(c.hprot);
+		hresp(c.hresp);
 	}
 };
 
@@ -236,7 +287,6 @@ public:
 			base_class::hsel = true;
 			base_class::haddr = addr;
 			base_class::hwrite = true;
-			base_class::pstrb = strb;
 			base_class::hwdata = dt;
 			base_class::hprot = prot;
 			wait();
@@ -244,7 +294,7 @@ public:
 
 			while( base_class::hready.read() == false) wait();
 			base_class::hsel = false;
-			slverr = base_class::pslverr.read();
+
 		}
 
 		return slverr;
@@ -267,7 +317,6 @@ public:
 			while( base_class::hready.read() == false) wait();
 			base_class::hsel = false;
 			dt = base_class::hrdata.read();
-			slverr =  base_class::pslverr.read();
 		}
 
 		return slverr;
@@ -279,10 +328,8 @@ public:
 		base_class::hready(c.hready);
 		base_class::hprot(c.hprot);
 		base_class::hwrite(c.hwrite);
-		base_class::pstrb(c.pstrb);
 		base_class::hwdata(c.hwdata);
 		base_class::hrdata(c.hrdata);
-		base_class::pslverr(c.pslverr);
 	}
 
 	void bind(ahb3_lite_base_port<ADWIDTH,BUSWIDTH,MODE>& c){
@@ -311,10 +358,8 @@ public:
 		sc_trace(tf,	base_class::hprot,		TR_NAME("hprot"));
 		sc_trace(tf,	base_class::hwrite,		TR_NAME("hwrite"));
 		sc_trace(tf,	base_class::hready,		TR_NAME("hready"));
-		sc_trace(tf,	base_class::pstrb,		TR_NAME("pstrb"));
 		sc_trace(tf,	base_class::hwdata,		TR_NAME("hwdata"));
 		sc_trace(tf,	base_class::hrdata,		TR_NAME("hrdata"));
-		sc_trace(tf,	base_class::pslverr,	TR_NAME("pslverr"));
 	}
 };
 
@@ -366,10 +411,8 @@ public:
 		base_class::hready(c.hready);
 		base_class::hprot(c.hprot);
 		base_class::hwrite(c.hwrite);
-		base_class::pstrb(c.pstrb);
 		base_class::hwdata(c.hwdata);
 		base_class::hrdata(c.hrdata);
-		base_class::pslverr(c.pslverr);
 	}
 
 	void bind(ahb3_lite_base_export<ADWIDTH,BUSWIDTH,MODE>& c){
@@ -378,10 +421,8 @@ public:
 		base_class::hready(c.hready);
 		base_class::hprot(c.hprot);
 		base_class::hwrite(c.hwrite);
-		base_class::pstrb(c.pstrb);
 		base_class::hwdata(c.hwdata);
 		base_class::hrdata(c.hrdata);
-		base_class::pslverr(c.pslverr);
 	}
 
 	void operator()(ahb3_lite_base_chain<ADWIDTH,BUSWIDTH>& c){
@@ -398,10 +439,8 @@ public:
 		sc_trace(tf,	base_class::hprot,		TR_NAME("hprot"));
 		sc_trace(tf,	base_class::hwrite,		TR_NAME("hwrite"));
 		sc_trace(tf,	base_class::hready,		TR_NAME("hready"));
-		sc_trace(tf,	base_class::pstrb,		TR_NAME("pstrb"));
 		sc_trace(tf,	base_class::hwdata,		TR_NAME("hwdata"));
 		sc_trace(tf,	base_class::hrdata,		TR_NAME("hrdata"));
-		sc_trace(tf,	base_class::pslverr,	TR_NAME("pslverr"));
 	}
 
 	void bus_thread(){
@@ -409,7 +448,6 @@ public:
 			ahb_lite_reset();
 			base_class::hready  = false;
 			base_class::hrdata  = data_type();
-			base_class::pslverr = false;
 			wait();
 		}
 
@@ -432,7 +470,6 @@ public:
 				prot = base_class::hprot.read();
 				write = base_class::hwrite.read();
 				addr = base_class::haddr.read();
-				strb = base_class::pstrb.read();
 				wdata = base_class::hwdata.read();
 				rdata = data_type();
 				slverr = false;
@@ -448,7 +485,6 @@ public:
 			{
 				base_class::hrdata = rdata;
 				base_class::hready = true;
-				base_class::pslverr = slverr;
 				wait();
 				base_class::hready = false;
 			}
@@ -474,11 +510,9 @@ public:
 		sensitive << initiator_port.haddr;
 		sensitive << initiator_port.hwrite;
 		sensitive << initiator_port.hwdata;
-		sensitive << initiator_port.pstrb;
 
 		sensitive << target_port.hready;
 		sensitive << target_port.hrdata;
-		sensitive << target_port.pslverr;
 		dont_initialize();
 		end_module();
 	}
@@ -488,12 +522,10 @@ public:
 		target_port.hprot   = initiator_port.hprot.read();
 		target_port.haddr   = initiator_port.haddr.read();
 		target_port.hwrite  = initiator_port.hwrite.read();
-		target_port.pstrb   = initiator_port.pstrb.read();
 		target_port.hwdata  = initiator_port.hwdata.read();
 
 		initiator_port.hready = target_port.hready.read();
 		initiator_port.hrdata = target_port.hrdata.read();
-		initiator_port.pslverr = target_port.pslverr.read();
 
 	}
 
@@ -506,7 +538,6 @@ public:
 		sc_trace(tf,	initiator_port.pstrb,	TR_NAME("initiator_port.pstrb"));
 		sc_trace(tf,	initiator_port.hwdata,	TR_NAME("initiator_port.hwdata"));
 		sc_trace(tf,	initiator_port.hrdata,	TR_NAME("initiator_port.hrdata"));
-		sc_trace(tf,	initiator_port.pslverr,	TR_NAME("initiator_port.pslverr"));
 
 		sc_trace(tf,	target_port.hsel, 		TR_NAME("target_port.hsel"));
 		sc_trace(tf,	target_port.haddr,		TR_NAME("target_port.haddr"));
@@ -516,7 +547,6 @@ public:
 		sc_trace(tf,	target_port.pstrb,		TR_NAME("target_port.pstrb"));
 		sc_trace(tf,	target_port.hwdata,		TR_NAME("target_port.hwdata"));
 		sc_trace(tf,	target_port.hrdata,		TR_NAME("target_port.hrdata"));
-		sc_trace(tf,	target_port.pslverr,	TR_NAME("target_port.pslverr"));
 
 	}
 };
