@@ -205,7 +205,7 @@ public:
 	sc_in<data_type> hwdata;
 	sc_out<data_type> hrdata;
 	sc_in<bool> hmastlock;
-	sc_out<bool> hready;
+	sc_in<bool> hready;
 	sc_out<bool> hreadyout;
 	sc_in<prot_type> hprot;
 	sc_out<bool> hresp;
@@ -237,7 +237,7 @@ public:
 		hrdata(c.hrdata);
 		hmastlock(c.hmastlock);
 		hready(c.hready);
-		hredyout(c.hreadyout);
+		hreadyout(c.hreadyout);
 		hprot(c.hprot);
 		hresp(c.hresp);
 	}
@@ -253,7 +253,7 @@ public:
 		hrdata(c.hrdata);
 		hmastlock(c.hmastlock);
 		hready(c.hready);
-		hredyout(c.hreadyout);
+		hreadyout(c.hreadyout);
 		hprot(c.hprot);
 		hresp(c.hresp);
 	}
@@ -446,7 +446,7 @@ public:
 	void bus_thread(){
 		{
 			ahb_lite_reset();
-			base_class::hready  = false;
+			base_class::hreadyout  = false;
 			base_class::hrdata  = data_type();
 			wait();
 		}
@@ -462,11 +462,11 @@ public:
 
 
 			{
-				base_class::hready = true;
+				base_class::hreadyout = true;
 				wait();
 
 				while( base_class::hsel.read() == false) wait();
-				base_class::hready = false;
+				base_class::hreadyout = false;
 				prot = base_class::hprot.read();
 				write = base_class::hwrite.read();
 				addr = base_class::haddr.read();
@@ -484,9 +484,9 @@ public:
 
 			{
 				base_class::hrdata = rdata;
-				base_class::hready = true;
+				base_class::hreadyout = true;
 				wait();
-				base_class::hready = false;
+				base_class::hreadyout = false;
 			}
 
 		}
