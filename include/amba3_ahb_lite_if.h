@@ -57,18 +57,18 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH>
 class ahb3_lite_base_chain{
 public:
-	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
-	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
-	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
+//	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
+//	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
+//	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
 
-	typedef sc_uint<2> trans_type;
-	typedef sc_uint<ADWIDTH> address_type;
-	typedef sc_uint<3> burst_type;
-	typedef sc_uint<3> size_type;
-
-	typedef sc_uint<BUSWIDTH> data_type;
-	typedef sc_uint<BUSWIDTH/8> strb_type;
-	typedef sc_uint<3> prot_type;
+	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
+	typedef typename if_type::trans_type 	trans_type;
+	typedef typename if_type::address_type 	address_type;
+	typedef typename if_type::burst_type 	burst_type;
+	typedef typename if_type::size_type 	size_type;
+	typedef typename if_type::data_type 	data_type;
+	typedef typename if_type::strb_type 	strb_type;
+	typedef typename if_type::prot_type 	prot_type;
 
 	sc_signal<bool> hsel;
 	sc_signal<trans_type> htrans;
@@ -106,18 +106,19 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH, class MODE=PIN>
 class ahb3_lite_base_port{
 public:
-	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
-	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
-	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
+//	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
+//	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
+//	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
 
-	typedef sc_uint<2> trans_type;
-	typedef sc_uint<ADWIDTH> address_type;
-	typedef sc_uint<3> burst_type;
-	typedef sc_uint<3> size_type;
+	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
+	typedef typename if_type::trans_type 	trans_type;
+	typedef typename if_type::address_type 	address_type;
+	typedef typename if_type::burst_type 	burst_type;
+	typedef typename if_type::size_type 	size_type;
+	typedef typename if_type::data_type 	data_type;
+	typedef typename if_type::strb_type 	strb_type;
+	typedef typename if_type::prot_type 	prot_type;
 
-	typedef sc_uint<BUSWIDTH> data_type;
-	typedef sc_uint<BUSWIDTH/8> strb_type;
-	typedef sc_uint<3> prot_type;
 
 	sc_out<bool> hsel;
 	sc_out<trans_type> htrans;
@@ -183,18 +184,19 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH, class MODE=PIN>
 class ahb3_lite_base_export{
 public:
-	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
-	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
-	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
+//	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
+//	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
+//	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
 
-	typedef sc_uint<2> trans_type;
-	typedef sc_uint<ADWIDTH> address_type;
-	typedef sc_uint<3> burst_type;
-	typedef sc_uint<3> size_type;
+	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
+	typedef typename if_type::trans_type 	trans_type;
+	typedef typename if_type::address_type 	address_type;
+	typedef typename if_type::burst_type 	burst_type;
+	typedef typename if_type::size_type 	size_type;
+	typedef typename if_type::data_type 	data_type;
+	typedef typename if_type::strb_type 	strb_type;
+	typedef typename if_type::prot_type 	prot_type;
 
-	typedef sc_uint<BUSWIDTH> data_type;
-	typedef sc_uint<BUSWIDTH/8> strb_type;
-	typedef sc_uint<3> prot_type;
 
 	sc_in<bool> hsel;
 	sc_in<trans_type> htrans;
@@ -263,10 +265,15 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH, class MODE=PIN>
 class ahb3_lite_port:public sc_module, public ahb3_lite_base_port<ADWIDTH,BUSWIDTH,MODE>, public ahb3_lite_interface<ADWIDTH,BUSWIDTH>{
 public:
-	typedef sc_uint<BUSWIDTH> data_type;
-	typedef sc_uint<BUSWIDTH/8U> strb_type;
-	typedef sc_uint<ADWIDTH> address_type;
-	typedef sc_uint<4> prot_type;
+
+	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
+	typedef typename if_type::trans_type 	trans_type;
+	typedef typename if_type::address_type 	address_type;
+	typedef typename if_type::burst_type 	burst_type;
+	typedef typename if_type::size_type 	size_type;
+	typedef typename if_type::data_type 	data_type;
+	typedef typename if_type::strb_type 	strb_type;
+	typedef typename if_type::prot_type 	prot_type;
 
 	typedef ahb3_lite_base_port<ADWIDTH,BUSWIDTH,MODE> base_class;
 
@@ -375,18 +382,22 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH, class MODE=PIN>
 class ahb3_lite_export:public sc_module, public ahb3_lite_base_export<ADWIDTH,BUSWIDTH,MODE>, public ahb3_lite_interface<ADWIDTH,BUSWIDTH>{
 public:
-	typedef sc_uint<BUSWIDTH> data_type;
-	typedef sc_uint<BUSWIDTH/8> strb_type;
-	typedef sc_uint<ADWIDTH> address_type;
-	typedef sc_uint<4> prot_type;
+
+	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
+	typedef typename if_type::trans_type 	trans_type;
+	typedef typename if_type::address_type 	address_type;
+	typedef typename if_type::burst_type 	burst_type;
+	typedef typename if_type::size_type 	size_type;
+	typedef typename if_type::data_type 	data_type;
+	typedef typename if_type::strb_type 	strb_type;
+	typedef typename if_type::prot_type 	prot_type;
 
 	typedef ahb3_lite_base_export<ADWIDTH,BUSWIDTH,MODE> base_class;
-	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> inf_type;
 
 	sc_in<bool> hclk;
 	sc_in<bool> nreset;
 
-	sc_export<inf_type> cb_port;
+	sc_export<if_type> cb_port;
 	//sc_export<reset_interface> reset_export;
 
 	SC_HAS_PROCESS(ahb3_lite_export);
@@ -410,7 +421,7 @@ public:
 		return cb_port->ahb_lite_read(prot, ad, dt);
 	}
 
-	void bind(inf_type& p){
+	void bind(if_type& p){
 		this->cb_port(p);
 	}
 
