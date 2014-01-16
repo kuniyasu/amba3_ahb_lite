@@ -82,11 +82,11 @@ public:
 
 		initiatorDUT.clk(clk);
 		initiatorDUT.nrst(nrst);
-		initiatorDUT.port(bus.initiator_port);
+//		initiatorDUT.port(bus.initiator_port);
 
 		targetDUT.clk(clk);
 		targetDUT.nrst(nrst);
-		targetDUT.ex_port(bus.target_port);
+//		targetDUT.ex_port(bus.target_port);
 
 		SC_THREAD(timeout_thread);
 		end_module();

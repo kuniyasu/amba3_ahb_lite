@@ -266,7 +266,7 @@ public:
 	typedef sc_uint<BUSWIDTH> data_type;
 	typedef sc_uint<BUSWIDTH/8U> strb_type;
 	typedef sc_uint<ADWIDTH> address_type;
-	typedef sc_uint<3> prot_type;
+	typedef sc_uint<4> prot_type;
 
 	typedef ahb3_lite_base_port<ADWIDTH,BUSWIDTH,MODE> base_class;
 
@@ -324,24 +324,32 @@ public:
 
 	void bind(ahb3_lite_base_chain<ADWIDTH,BUSWIDTH>& c){
 		base_class::hsel(c.hsel);
+		base_class::htrans(c.htrans);
 		base_class::haddr(c.haddr);
+		base_class::hwrite(c.hwrite);
+		base_class::hburst(c.hburst);
+		base_class::hsize(c.hsize);
+		base_class::hwrite(c.hwrite);
+		base_class::hrdata(c.hrdata);
+		base_class::hmastlock(c.hmastlock);
 		base_class::hready(c.hready);
 		base_class::hprot(c.hprot);
-		base_class::hwrite(c.hwrite);
-		base_class::hwdata(c.hwdata);
-		base_class::hrdata(c.hrdata);
+		base_class::hresp(c.hresp);
 	}
 
 	void bind(ahb3_lite_base_port<ADWIDTH,BUSWIDTH,MODE>& c){
 		base_class::hsel(c.hsel);
+		base_class::htrans(c.htrans);
 		base_class::haddr(c.haddr);
+		base_class::hwrite(c.hwrite);
+		base_class::hburst(c.hburst);
+		base_class::hsize(c.hsize);
+		base_class::hwrite(c.hwrite);
+		base_class::hrdata(c.hrdata);
+		base_class::hmastlock(c.hmastlock);
 		base_class::hready(c.hready);
 		base_class::hprot(c.hprot);
-		base_class::hwrite(c.hwrite);
-		base_class::pstrb(c.pstrb);
-		base_class::hwdata(c.hwdata);
-		base_class::hrdata(c.hrdata);
-		base_class::pslverr(c.pslverr);
+		base_class::hresp(c.hresp);
 	}
 
 	void operator()(ahb3_lite_base_chain<ADWIDTH,BUSWIDTH>& c){
@@ -369,7 +377,7 @@ public:
 	typedef sc_uint<BUSWIDTH> data_type;
 	typedef sc_uint<BUSWIDTH/8> strb_type;
 	typedef sc_uint<ADWIDTH> address_type;
-	typedef sc_uint<3> prot_type;
+	typedef sc_uint<4> prot_type;
 
 	typedef ahb3_lite_base_export<ADWIDTH,BUSWIDTH,MODE> base_class;
 	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> inf_type;
@@ -407,22 +415,34 @@ public:
 
 	void bind(ahb3_lite_base_chain<ADWIDTH,BUSWIDTH>& c){
 		base_class::hsel(c.hsel);
+		base_class::htrans(c.htrans);
 		base_class::haddr(c.haddr);
-		base_class::hready(c.hready);
-		base_class::hprot(c.hprot);
 		base_class::hwrite(c.hwrite);
-		base_class::hwdata(c.hwdata);
+		base_class::hburst(c.hburst);
+		base_class::hsize(c.hsize);
+		base_class::hwrite(c.hwrite);
 		base_class::hrdata(c.hrdata);
+		base_class::hmastlock(c.hmastlock);
+		base_class::hready(c.hready);
+		base_class::hreadyout(c.hreadyout);
+		base_class::hprot(c.hprot);
+		base_class::hresp(c.hresp);
 	}
 
 	void bind(ahb3_lite_base_export<ADWIDTH,BUSWIDTH,MODE>& c){
 		base_class::hsel(c.hsel);
+		base_class::htrans(c.htrans);
 		base_class::haddr(c.haddr);
-		base_class::hready(c.hready);
-		base_class::hprot(c.hprot);
 		base_class::hwrite(c.hwrite);
-		base_class::hwdata(c.hwdata);
+		base_class::hburst(c.hburst);
+		base_class::hsize(c.hsize);
+		base_class::hwrite(c.hwrite);
 		base_class::hrdata(c.hrdata);
+		base_class::hmastlock(c.hmastlock);
+		base_class::hready(c.hready);
+		base_class::hreadyout(c.hreadyout);
+		base_class::hprot(c.hprot);
+		base_class::hresp(c.hresp);
 	}
 
 	void operator()(ahb3_lite_base_chain<ADWIDTH,BUSWIDTH>& c){
