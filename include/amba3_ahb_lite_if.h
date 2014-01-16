@@ -270,10 +270,11 @@ public:
 
 	typedef ahb3_lite_base_port<ADWIDTH,BUSWIDTH,MODE> base_class;
 
-	sc_in<bool> pclk;
+	sc_in<bool> hclk;
 	sc_in<bool> nreset;
 
-	ahb3_lite_port(sc_module_name name=sc_gen_unique_name("ahb3_lite_port")):sc_module(name),pclk("pclk"),nreset("nreset"){
+
+	ahb3_lite_port(sc_module_name name=sc_gen_unique_name("ahb3_lite_port")):sc_module(name),hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
 		end_module();
 	}
 
@@ -382,7 +383,7 @@ public:
 	typedef ahb3_lite_base_export<ADWIDTH,BUSWIDTH,MODE> base_class;
 	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> inf_type;
 
-	sc_in<bool> pclk;
+	sc_in<bool> hclk;
 	sc_in<bool> nreset;
 
 	sc_export<inf_type> cb_port;
@@ -390,8 +391,8 @@ public:
 
 	SC_HAS_PROCESS(ahb3_lite_export);
 
-	ahb3_lite_export(sc_module_name name=sc_gen_unique_name("ahb3_lite_export")):sc_module(name),pclk("pclk"),nreset("nreset"){
-		SC_CTHREAD(bus_thread,pclk.pos());
+	ahb3_lite_export(sc_module_name name=sc_gen_unique_name("ahb3_lite_export")):sc_module(name),hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
+		SC_CTHREAD(bus_thread,hclk.pos());
 		async_reset_signal_is(nreset,false);
 
 		end_module();
@@ -593,10 +594,10 @@ class ahb3_lite_port<ADWIDTH,BUSWIDTH,TLM2LT>:public tlm_initiator_socket<BUSWID
 public:
 	typedef tlm_initiator_socket<BUSWIDTH> base_type;
 
-	sc_in<bool> pclk;
+	sc_in<bool> hclk;
 	sc_in<bool> nreset;
 
-	ahb3_lite_port(const sc_module_name name=sc_gen_unique_name("ahb3_lite_port")):base_type(name){
+	ahb3_lite_port(const sc_module_name name=sc_gen_unique_name("ahb3_lite_port")):base_type(name),hclk(PIN_NAME(name,"pclk")),nreset(PIN_NAME(name,"nreset")){
 		(base_type::get_base_export())(*this);
 	}
 
@@ -651,10 +652,10 @@ public:
 	typedef tlm_target_socket<BUSWIDTH> base_type;
 	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> inf_type;
 
-	sc_in<bool> pclk;
+	sc_in<bool> hclk;
 	sc_in<bool> nreset;
 
-	ahb3_lite_export(const sc_module_name name=sc_gen_unique_name("ahb3_lite_export")):base_type(name),pclk("pclk"){
+	ahb3_lite_export(const sc_module_name name=sc_gen_unique_name("ahb3_lite_export")):base_type(name),hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
 		(base_type::get_base_export())(*this);
 	}
 

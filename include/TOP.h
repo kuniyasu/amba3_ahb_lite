@@ -25,7 +25,7 @@ public:
 
 	SC_HAS_PROCESS(InitiatorDUT);
 	InitiatorDUT(const sc_module_name name):sc_module(name),clk("clk"),nrst("nrst"),port("i_port"){
-		port.pclk(clk);
+		port.hclk(clk);
 		port.nreset(nrst);
 		end_module();
 	}
@@ -40,7 +40,7 @@ public:
 
 	SC_HAS_PROCESS(TargetDUT);
 	TargetDUT(const sc_module_name name):sc_module(name),clk("clk"),nrst("nrst"),ex_port("cb"){
-		ex_port.pclk(clk);
+		ex_port.hclk(clk);
 		ex_port.nreset(nrst);
 
 		ex_port.bind(*this);
