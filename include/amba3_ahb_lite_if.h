@@ -265,7 +265,18 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH, class MODE=PIN>
 class ahb3_lite_port:public sc_module, public ahb3_lite_base_port<ADWIDTH,BUSWIDTH,MODE>, public ahb3_lite_interface<ADWIDTH,BUSWIDTH>{
 public:
+	//enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
+	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
+	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
 
+	static const unsigned char IDLE 	= 0U;
+	static const unsigned char BUSY	 	= 1U;
+	static const unsigned char NONSEQ 	= 2U;
+	static const unsigned char SEQ 		= 3U;
+
+
+
+	typedef ahb3_lite_base_port<ADWIDTH,BUSWIDTH,MODE> base_class;
 	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
 	typedef typename if_type::trans_type 	trans_type;
 	typedef typename if_type::address_type 	address_type;
@@ -275,34 +286,34 @@ public:
 	typedef typename if_type::strb_type 	strb_type;
 	typedef typename if_type::prot_type 	prot_type;
 
-	typedef ahb3_lite_base_port<ADWIDTH,BUSWIDTH,MODE> base_class;
 
 	sc_in<bool> hclk;
 	sc_in<bool> nreset;
-
 
 	ahb3_lite_port(sc_module_name name=sc_gen_unique_name("ahb3_lite_port")):sc_module(name),hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
 		end_module();
 	}
 
 	virtual void ahb_lite_reset(){
-		base_class::hsel = false;
+		base_class::hsel   = false;
+		base_class::htrans = IDLE;
 	}
 
 	virtual bool ahb_lite_write(const prot_type& prot, const address_type& addr, const strb_type& strb, const data_type& dt){
 		bool slverr = false;
 		{
-			base_class::hsel = true;
-			base_class::haddr = addr;
+			base_class::hsel   = true;
+			base_class::htrans = NONSEQ;
+			base_class::haddr  = addr;
 			base_class::hwrite = true;
+			base_class::hprot  = prot;
+			do{ wait(); } while (base_class::hready.read() == false );
+
+			base_class::hsel   = false;
 			base_class::hwdata = dt;
-			base_class::hprot = prot;
-			wait();
-
-
-			while( base_class::hready.read() == false) wait();
-			base_class::hsel = false;
-
+			base_class::htrans = IDLE;
+			do{ wait(); } while (base_class::hready.read() == false );
+			slverr = base_class::hresp.read();
 		}
 
 		return slverr;
@@ -312,19 +323,18 @@ public:
 		bool slverr = false;
 
 		{
-			base_class::hsel = true;
-			base_class::haddr = addr;
+			base_class::hsel   = true;
+			base_class::htrans = NONSEQ;
+			base_class::haddr  = addr;
 			base_class::hwrite = false;
-			base_class::hprot = prot;
-			//base_class::pstrb = strb_type();
-			//base_class::hwdata = data_type();
-			wait();
+			base_class::hprot  = prot;
+			do{ wait(); } while (base_class::hready.read() == false );
 
-			wait();
-
-			while( base_class::hready.read() == false) wait();
-			base_class::hsel = false;
+			base_class::hsel   = false;
+			base_class::htrans = IDLE;
+			do{ wait(); } while (base_class::hready.read() == false );
 			dt = base_class::hrdata.read();
+			slverr = base_class::hresp.read();
 		}
 
 		return slverr;
@@ -382,7 +392,7 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH, class MODE=PIN>
 class ahb3_lite_export:public sc_module, public ahb3_lite_base_export<ADWIDTH,BUSWIDTH,MODE>, public ahb3_lite_interface<ADWIDTH,BUSWIDTH>{
 public:
-
+	typedef ahb3_lite_base_export<ADWIDTH,BUSWIDTH,MODE> base_class;
 	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
 	typedef typename if_type::trans_type 	trans_type;
 	typedef typename if_type::address_type 	address_type;
@@ -392,13 +402,11 @@ public:
 	typedef typename if_type::strb_type 	strb_type;
 	typedef typename if_type::prot_type 	prot_type;
 
-	typedef ahb3_lite_base_export<ADWIDTH,BUSWIDTH,MODE> base_class;
 
 	sc_in<bool> hclk;
 	sc_in<bool> nreset;
 
 	sc_export<if_type> cb_port;
-	//sc_export<reset_interface> reset_export;
 
 	SC_HAS_PROCESS(ahb3_lite_export);
 
@@ -543,7 +551,7 @@ public:
 		sensitive << initiator_port.hwrite;
 		sensitive << initiator_port.hwdata;
 
-		sensitive << target_port.hready;
+		sensitive << target_port.hreadyout;
 		sensitive << target_port.hrdata;
 		dont_initialize();
 		end_module();
@@ -556,7 +564,9 @@ public:
 		target_port.hwrite  = initiator_port.hwrite.read();
 		target_port.hwdata  = initiator_port.hwdata.read();
 
-		initiator_port.hready = target_port.hready.read();
+		initiator_port.hready = target_port.hreadyout.read();
+		target_port.hready = target_port.hreadyout.read();
+
 		initiator_port.hrdata = target_port.hrdata.read();
 
 	}
@@ -604,6 +614,14 @@ template<unsigned int ADWIDTH, unsigned int BUSWIDTH>
 class ahb3_lite_port<ADWIDTH,BUSWIDTH,TLM2LT>:public tlm_initiator_socket<BUSWIDTH>, public tlm_bw_transport_if<>, ahb3_lite_interface<ADWIDTH,BUSWIDTH>{
 public:
 	typedef tlm_initiator_socket<BUSWIDTH> base_type;
+	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
+	typedef typename if_type::trans_type 	trans_type;
+	typedef typename if_type::address_type 	address_type;
+	typedef typename if_type::burst_type 	burst_type;
+	typedef typename if_type::size_type 	size_type;
+	typedef typename if_type::data_type 	data_type;
+	typedef typename if_type::strb_type 	strb_type;
+	typedef typename if_type::prot_type 	prot_type;
 
 	sc_in<bool> hclk;
 	sc_in<bool> nreset;
@@ -622,10 +640,7 @@ public:
 	    // DMI unused
 	}
 
-	typedef sc_uint<BUSWIDTH> data_type;
-	typedef sc_uint<BUSWIDTH/8> strb_type;
-	typedef sc_uint<ADWIDTH> address_type;
-	typedef sc_uint<3> prot_type;
+
 
 	virtual void ahb_lite_reset(){}
 	virtual bool ahb_lite_write(const prot_type& prot, const address_type& ad, const strb_type& strb, const data_type& dt){
@@ -661,7 +676,14 @@ template<unsigned int ADWIDTH, unsigned int BUSWIDTH>
 class ahb3_lite_export<ADWIDTH,BUSWIDTH,TLM2LT>:public tlm_target_socket<BUSWIDTH>, public tlm_fw_transport_if<>, ahb3_lite_interface<ADWIDTH,BUSWIDTH>{
 public:
 	typedef tlm_target_socket<BUSWIDTH> base_type;
-	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> inf_type;
+	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
+	typedef typename if_type::trans_type 	trans_type;
+	typedef typename if_type::address_type 	address_type;
+	typedef typename if_type::burst_type 	burst_type;
+	typedef typename if_type::size_type 	size_type;
+	typedef typename if_type::data_type 	data_type;
+	typedef typename if_type::strb_type 	strb_type;
+	typedef typename if_type::prot_type 	prot_type;
 
 	sc_in<bool> hclk;
 	sc_in<bool> nreset;
@@ -689,13 +711,9 @@ public:
 	    return false; // DMI not supported
 	}
 
-	typedef sc_uint<BUSWIDTH> data_type;
-	typedef sc_uint<BUSWIDTH/8> strb_type;
-	typedef sc_uint<ADWIDTH> address_type;
-	typedef sc_uint<3> prot_type;
+	sc_export<if_type> cb_port;
 
-	sc_export<inf_type> cb_port;
-	void bind(inf_type& if_class){
+	void bind(if_type& if_class){
 		cb_port(if_class);
 		ahb_lite_reset();
 	}
