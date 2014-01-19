@@ -400,12 +400,17 @@ public:
 
 	void set_trace(sc_trace_file* tf){
 		sc_trace(tf,	base_class::hsel, 		TR_NAME("hsel"));
+		sc_trace(tf,	base_class::htrans, 	TR_NAME("htrans"));
 		sc_trace(tf,	base_class::haddr,		TR_NAME("haddr"));
-		sc_trace(tf,	base_class::hprot,		TR_NAME("hprot"));
 		sc_trace(tf,	base_class::hwrite,		TR_NAME("hwrite"));
-		sc_trace(tf,	base_class::hready,		TR_NAME("hready"));
+		sc_trace(tf,	base_class::hburst,		TR_NAME("hburst"));
+		sc_trace(tf,	base_class::hsize,		TR_NAME("hsize"));
 		sc_trace(tf,	base_class::hwdata,		TR_NAME("hwdata"));
 		sc_trace(tf,	base_class::hrdata,		TR_NAME("hrdata"));
+		sc_trace(tf,	base_class::hmastlock,	TR_NAME("hmastlock"));
+		sc_trace(tf,	base_class::hready,		TR_NAME("hready"));
+		sc_trace(tf,	base_class::hprot,		TR_NAME("hprot"));
+		sc_trace(tf,	base_class::hresp,		TR_NAME("hresp"));
 	}
 };
 
@@ -520,12 +525,18 @@ public:
 
 	void set_trace(sc_trace_file* tf){
 		sc_trace(tf,	base_class::hsel, 		TR_NAME("hsel"));
+		sc_trace(tf,	base_class::htrans, 	TR_NAME("htrans"));
 		sc_trace(tf,	base_class::haddr,		TR_NAME("haddr"));
-		sc_trace(tf,	base_class::hprot,		TR_NAME("hprot"));
 		sc_trace(tf,	base_class::hwrite,		TR_NAME("hwrite"));
-		sc_trace(tf,	base_class::hready,		TR_NAME("hready"));
+		sc_trace(tf,	base_class::hburst,		TR_NAME("hburst"));
+		sc_trace(tf,	base_class::hsize,		TR_NAME("hsize"));
 		sc_trace(tf,	base_class::hwdata,		TR_NAME("hwdata"));
 		sc_trace(tf,	base_class::hrdata,		TR_NAME("hrdata"));
+		sc_trace(tf,	base_class::hmastlock,	TR_NAME("hmastlock"));
+		sc_trace(tf,	base_class::hready,		TR_NAME("hready"));
+		sc_trace(tf,	base_class::hreadyout,	TR_NAME("hreadyout"));
+		sc_trace(tf,	base_class::hprot,		TR_NAME("hprot"));
+		sc_trace(tf,	base_class::hresp,		TR_NAME("hresp"));
 	}
 
 	void bus_thread(){
