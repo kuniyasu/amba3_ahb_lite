@@ -235,7 +235,7 @@ public:
 		hwrite(c.hwrite);
 		hburst(c.hburst);
 		hsize(c.hsize);
-		hwrite(c.hwrite);
+		hwdata(c.hwdata);
 		hrdata(c.hrdata);
 		hmastlock(c.hmastlock);
 		hready(c.hready);
@@ -251,7 +251,7 @@ public:
 		hwrite(c.hwrite);
 		hburst(c.hburst);
 		hsize(c.hsize);
-		hwrite(c.hwrite);
+		hwdata(c.hwdata);
 		hrdata(c.hrdata);
 		hmastlock(c.hmastlock);
 		hready(c.hready);
@@ -290,7 +290,7 @@ public:
 	sc_in<bool> hclk;
 	sc_in<bool> nreset;
 
-	ahb3_lite_port(sc_module_name name=sc_gen_unique_name("ahb3_lite_port")):sc_module(name),hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
+	ahb3_lite_port(sc_module_name name=sc_gen_unique_name("ahb3_lite_port")):sc_module(name),base_class(name),hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
 		end_module();
 	}
 
@@ -347,7 +347,7 @@ public:
 		base_class::hwrite(c.hwrite);
 		base_class::hburst(c.hburst);
 		base_class::hsize(c.hsize);
-		base_class::hwrite(c.hwrite);
+		base_class::hwdata(c.hwdata);
 		base_class::hrdata(c.hrdata);
 		base_class::hmastlock(c.hmastlock);
 		base_class::hready(c.hready);
@@ -362,7 +362,7 @@ public:
 		base_class::hwrite(c.hwrite);
 		base_class::hburst(c.hburst);
 		base_class::hsize(c.hsize);
-		base_class::hwrite(c.hwrite);
+		base_class::hwdata(c.hwdata);
 		base_class::hrdata(c.hrdata);
 		base_class::hmastlock(c.hmastlock);
 		base_class::hready(c.hready);
@@ -410,7 +410,7 @@ public:
 
 	SC_HAS_PROCESS(ahb3_lite_export);
 
-	ahb3_lite_export(sc_module_name name=sc_gen_unique_name("ahb3_lite_export")):sc_module(name),hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
+	ahb3_lite_export(sc_module_name name=sc_gen_unique_name("ahb3_lite_export")):sc_module(name),base_class(name),hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
 		SC_CTHREAD(bus_thread,hclk.pos());
 		async_reset_signal_is(nreset,false);
 
@@ -440,7 +440,7 @@ public:
 		base_class::hwrite(c.hwrite);
 		base_class::hburst(c.hburst);
 		base_class::hsize(c.hsize);
-		base_class::hwrite(c.hwrite);
+		base_class::hwdata(c.hwdata);
 		base_class::hrdata(c.hrdata);
 		base_class::hmastlock(c.hmastlock);
 		base_class::hready(c.hready);
@@ -456,7 +456,7 @@ public:
 		base_class::hwrite(c.hwrite);
 		base_class::hburst(c.hburst);
 		base_class::hsize(c.hsize);
-		base_class::hwrite(c.hwrite);
+		base_class::hwdata(c.hwdata);
 		base_class::hrdata(c.hrdata);
 		base_class::hmastlock(c.hmastlock);
 		base_class::hready(c.hready);

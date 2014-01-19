@@ -39,7 +39,7 @@ public:
 	ahb3_lite_export<32U,32U,ioMode> ex_port;
 
 	SC_HAS_PROCESS(TargetDUT);
-	TargetDUT(const sc_module_name name):sc_module(name),clk("clk"),nrst("nrst"),ex_port("cb"){
+	TargetDUT(const sc_module_name name):sc_module(name),clk("clk"),nrst("nrst"),ex_port("o_port"){
 		ex_port.hclk(clk);
 		ex_port.nreset(nrst);
 
@@ -82,11 +82,11 @@ public:
 
 		initiatorDUT.clk(clk);
 		initiatorDUT.nrst(nrst);
-//		initiatorDUT.port(bus.initiator_port);
+		initiatorDUT.port(bus.initiator_port);
 
 		targetDUT.clk(clk);
 		targetDUT.nrst(nrst);
-//		targetDUT.ex_port(bus.target_port);
+		targetDUT.ex_port(bus.target_port);
 
 		SC_THREAD(timeout_thread);
 		end_module();
