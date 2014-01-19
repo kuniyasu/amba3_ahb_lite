@@ -31,10 +31,29 @@ template<unsigned int ADWIDTH, unsigned int BUSWIDTH, class MODE>class ahb3_lite
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH>
 class ahb3_lite_interface:public sc_interface{
 public:
-	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
-	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
-	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
-	enum {OKAY=0, EORROR=1} resp;
+	static const unsigned char IDLE 	= 0U;
+	static const unsigned char BUSY	 	= 1U;
+	static const unsigned char NONSEQ 	= 2U;
+	static const unsigned char SEQ 		= 3U;
+
+	static const unsigned char SINGLE = 0U;
+	static const unsigned char INCR   = 1U;
+	static const unsigned char WRAP4  = 2U;
+	static const unsigned char INCR4  = 3U;
+	static const unsigned char WRAP8  = 4U;
+	static const unsigned char INCR8  = 5U;
+	static const unsigned char WRAP16 = 6U;
+	static const unsigned char INCR16 = 7U;
+
+	static const unsigned char Byte = 0;
+	static const unsigned char Halfword = 1;
+	static const unsigned char Word=2;
+	static const unsigned char Doubleword=3;
+	static const unsigned char Fourword=4;
+	static const unsigned char Eightword=5;
+
+	static const bool OKAY   = false;
+	static const bool EORROR = true;
 
 	typedef sc_uint<2> trans_type;
 	typedef sc_uint<ADWIDTH> address_type;
@@ -43,9 +62,7 @@ public:
 	typedef sc_uint<4> prot_type;
 	typedef sc_uint<BUSWIDTH> data_type;
 
-
 	typedef sc_uint<BUSWIDTH/8> strb_type;
-
 
 	virtual void ahb_lite_reset() = 0;
 	virtual bool ahb_lite_write(const prot_type& prot, const address_type& ad, const strb_type& strb, const data_type& dt) = 0;
@@ -57,10 +74,6 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH>
 class ahb3_lite_base_chain{
 public:
-//	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
-//	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
-//	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
-
 	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
 	typedef typename if_type::trans_type 	trans_type;
 	typedef typename if_type::address_type 	address_type;
@@ -106,10 +119,6 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH, class MODE=PIN>
 class ahb3_lite_base_port{
 public:
-//	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
-//	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
-//	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
-
 	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
 	typedef typename if_type::trans_type 	trans_type;
 	typedef typename if_type::address_type 	address_type;
@@ -184,10 +193,6 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH, class MODE=PIN>
 class ahb3_lite_base_export{
 public:
-//	enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
-//	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
-//	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
-
 	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
 	typedef typename if_type::trans_type 	trans_type;
 	typedef typename if_type::address_type 	address_type;
@@ -265,15 +270,29 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH, class MODE=PIN>
 class ahb3_lite_port:public sc_module, public ahb3_lite_base_port<ADWIDTH,BUSWIDTH,MODE>, public ahb3_lite_interface<ADWIDTH,BUSWIDTH>{
 public:
-	//enum {ILDE=0, BUSY=1, NONSEQ=2, SEQ=3} trans;
-	enum {SINGLE=0, INCR=1, WRAP4=2, INCR4=3, WRAP8=4, INCR8=5, WRAP16=6, INCR16=7} burst;
-	enum {Byte=0, Halfword=1, Word=2, Doubleword=3, Fourword=4, Eightword=5} size;
-
 	static const unsigned char IDLE 	= 0U;
 	static const unsigned char BUSY	 	= 1U;
 	static const unsigned char NONSEQ 	= 2U;
 	static const unsigned char SEQ 		= 3U;
 
+	static const unsigned char SINGLE = 0U;
+	static const unsigned char INCR   = 1U;
+	static const unsigned char WRAP4  = 2U;
+	static const unsigned char INCR4  = 3U;
+	static const unsigned char WRAP8  = 4U;
+	static const unsigned char INCR8  = 5U;
+	static const unsigned char WRAP16 = 6U;
+	static const unsigned char INCR16 = 7U;
+
+	static const unsigned char Byte = 0;
+	static const unsigned char Halfword = 1;
+	static const unsigned char Word=2;
+	static const unsigned char Doubleword=3;
+	static const unsigned char Fourword=4;
+	static const unsigned char Eightword=5;
+
+//	static const bool OKAY   = false;
+//	static const bool EORROR = true;
 
 
 	typedef ahb3_lite_base_port<ADWIDTH,BUSWIDTH,MODE> base_class;
@@ -290,7 +309,8 @@ public:
 	sc_in<bool> hclk;
 	sc_in<bool> nreset;
 
-	ahb3_lite_port(sc_module_name name=sc_gen_unique_name("ahb3_lite_port")):sc_module(name),base_class(name),hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
+	ahb3_lite_port(sc_module_name name=sc_gen_unique_name("ahb3_lite_port")):sc_module(name),base_class(name)
+	,hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
 		end_module();
 	}
 
@@ -402,6 +422,30 @@ public:
 	typedef typename if_type::strb_type 	strb_type;
 	typedef typename if_type::prot_type 	prot_type;
 
+	static const unsigned char IDLE 	= 0U;
+	static const unsigned char BUSY	 	= 1U;
+	static const unsigned char NONSEQ 	= 2U;
+	static const unsigned char SEQ 		= 3U;
+
+	static const unsigned char SINGLE = 0U;
+	static const unsigned char INCR   = 1U;
+	static const unsigned char WRAP4  = 2U;
+	static const unsigned char INCR4  = 3U;
+	static const unsigned char WRAP8  = 4U;
+	static const unsigned char INCR8  = 5U;
+	static const unsigned char WRAP16 = 6U;
+	static const unsigned char INCR16 = 7U;
+
+	static const unsigned char Byte = 0;
+	static const unsigned char Halfword = 1;
+	static const unsigned char Word=2;
+	static const unsigned char Doubleword=3;
+	static const unsigned char Fourword=4;
+	static const unsigned char Eightword=5;
+
+//	static const bool OKAY   = false;
+//	static const bool EORROR = true;
+
 
 	sc_in<bool> hclk;
 	sc_in<bool> nreset;
@@ -410,7 +454,8 @@ public:
 
 	SC_HAS_PROCESS(ahb3_lite_export);
 
-	ahb3_lite_export(sc_module_name name=sc_gen_unique_name("ahb3_lite_export")):sc_module(name),base_class(name),hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
+	ahb3_lite_export(sc_module_name name=sc_gen_unique_name("ahb3_lite_export")):sc_module(name),base_class(name)
+	,hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
 		SC_CTHREAD(bus_thread,hclk.pos());
 		async_reset_signal_is(nreset,false);
 
@@ -484,50 +529,58 @@ public:
 	}
 
 	void bus_thread(){
+		bool         post_sel   = false;
+		trans_type   post_trans = IDLE;
+		address_type post_addr = base_class::haddr.read();
+		bool 		 post_write = false;
+
+		data_type rdata = data_type();
+		bool slverr = if_type::OKAY;
+
 		{
 			ahb_lite_reset();
-			base_class::hreadyout  = false;
-			base_class::hrdata  = data_type();
+			base_class::hreadyout  	= false;
+			base_class::hrdata  	= data_type();
+			base_class::hresp   	= slverr;
 			wait();
 		}
 
 		while( true ){
 			prot_type prot = prot_type();
+
+			bool hsel = false;
+			trans_type trans = IDLE;
 			bool write = false;
 			address_type addr = address_type();
 			strb_type strb = strb_type();
 			data_type wdata = data_type();
-			data_type rdata = data_type();
-			bool slverr = false;
-
 
 			{
 				base_class::hreadyout = true;
+				base_class::hrdata  = rdata;
+				base_class::hresp   = slverr;
 				wait();
-
-				while( base_class::hsel.read() == false) wait();
+				while(base_class::hready.read() == false) wait();
 				base_class::hreadyout = false;
-				prot = base_class::hprot.read();
-				write = base_class::hwrite.read();
-				addr = base_class::haddr.read();
 				wdata = base_class::hwdata.read();
-				rdata = data_type();
-				slverr = false;
+
+				hsel  = base_class::hsel.read();
+				trans = base_class::htrans.read();
+				prot  = base_class::hprot.read();
+				write = base_class::hwrite.read();
+				addr  = base_class::haddr.read();
 			}
 
-			if( write == true ){
-				slverr = ahb_lite_write(prot, addr, strb, wdata);
-			}else{
-				slverr = ahb_lite_read(prot, addr, rdata);
+			if( post_sel == true && post_trans == NONSEQ && post_write == true ){
+				slverr = ahb_lite_write(prot, post_addr, strb, wdata);
+			}else if( post_sel == true && post_trans == NONSEQ && post_write == false ){
+				slverr =  ahb_lite_read(prot, post_addr, rdata);
 			}
 
-
-			{
-				base_class::hrdata = rdata;
-				base_class::hreadyout = true;
-				wait();
-				base_class::hreadyout = false;
-			}
+			post_sel = hsel;
+			post_trans = trans;
+			post_addr = addr;
+			post_write = write;
 
 		}
 	}
@@ -546,48 +599,69 @@ public:
 	{
 		SC_METHOD(method);
 		sensitive << initiator_port.hsel;
-		sensitive << initiator_port.hprot;
+		sensitive << initiator_port.htrans;
 		sensitive << initiator_port.haddr;
 		sensitive << initiator_port.hwrite;
+		sensitive << initiator_port.hburst;
+		sensitive << initiator_port.hsize;
 		sensitive << initiator_port.hwdata;
+		sensitive << initiator_port.hmastlock;
+		sensitive << initiator_port.hprot;
 
 		sensitive << target_port.hreadyout;
 		sensitive << target_port.hrdata;
+		sensitive << target_port.hresp;
+
 		dont_initialize();
 		end_module();
 	}
 
 	void method(){
-		target_port.hsel    = initiator_port.hsel.read();
-		target_port.hprot   = initiator_port.hprot.read();
-		target_port.haddr   = initiator_port.haddr.read();
-		target_port.hwrite  = initiator_port.hwrite.read();
-		target_port.hwdata  = initiator_port.hwdata.read();
+		target_port.hsel      = initiator_port.hsel.read();
+		target_port.htrans    = initiator_port.htrans.read();
+		target_port.haddr     = initiator_port.haddr.read();
+		target_port.hwrite    = initiator_port.hwrite.read();
+		target_port.hburst    = initiator_port.hburst.read();
+		target_port.hsize     = initiator_port.hsize.read();
+		target_port.hwdata    = initiator_port.hwdata.read();
+		target_port.hmastlock = initiator_port.hmastlock.read();
+		target_port.hprot     = initiator_port.hprot.read();
+		initiator_port.hrdata = target_port.hrdata.read();
+		initiator_port.hresp  = target_port.hresp.read();
 
 		initiator_port.hready = target_port.hreadyout.read();
-		target_port.hready = target_port.hreadyout.read();
-
-		initiator_port.hrdata = target_port.hrdata.read();
-
+		target_port.hready 	  = target_port.hreadyout.read();
 	}
 
 	void set_trace(sc_trace_file* tf){
-		sc_trace(tf,	initiator_port.hsel, 	TR_NAME("initiator_port.hsel") );
-		sc_trace(tf,	initiator_port.haddr,	TR_NAME("initiator_port.haddr"));
-		sc_trace(tf,	initiator_port.hprot,	TR_NAME("initiator_port.hprot"));
-		sc_trace(tf,	initiator_port.hwrite,	TR_NAME("initiator_port.hwrite"));
-		sc_trace(tf,	initiator_port.hready,	TR_NAME("initiator_port.hready"));
-		sc_trace(tf,	initiator_port.pstrb,	TR_NAME("initiator_port.pstrb"));
-		sc_trace(tf,	initiator_port.hwdata,	TR_NAME("initiator_port.hwdata"));
-		sc_trace(tf,	initiator_port.hrdata,	TR_NAME("initiator_port.hrdata"));
+		sc_trace(tf,	initiator_port.hsel, 		TR_NAME("initiator_port.hsel"));
+		sc_trace(tf,	initiator_port.htrans, 		TR_NAME("initiator_port.htrans"));
+		sc_trace(tf,	initiator_port.haddr,		TR_NAME("initiator_port.haddr"));
+		sc_trace(tf,	initiator_port.hwrite,		TR_NAME("initiator_port.hwrite"));
+		sc_trace(tf,	initiator_port.hburst,		TR_NAME("initiator_port.hburst"));
+		sc_trace(tf,	initiator_port.hsize,		TR_NAME("initiator_port.hsize"));
+		sc_trace(tf,	initiator_port.hwdata,		TR_NAME("initiator_port.hwdata"));
+		sc_trace(tf,	initiator_port.hmastlock,	TR_NAME("initiator_port.hmastlock"));
+		sc_trace(tf,	initiator_port.hprot,		TR_NAME("initiator_port.hprot"));
 
-		sc_trace(tf,	target_port.hsel, 		TR_NAME("target_port.hsel"));
+		sc_trace(tf,	initiator_port.hready,		TR_NAME("initiator_port.hready"));
+		sc_trace(tf,	initiator_port.pstrb,		TR_NAME("initiator_port.pstrb"));
+		sc_trace(tf,	initiator_port.hrdata,		TR_NAME("initiator_port.hrdata"));
+
+
+		sc_trace(tf,	target_port.hsel, 		TR_NAME("target_port.hsel") );
+		sc_trace(tf,	target_port.htrans, 	TR_NAME("target_port.htrans") );
 		sc_trace(tf,	target_port.haddr,		TR_NAME("target_port.haddr"));
-		sc_trace(tf,	target_port.hprot,		TR_NAME("target_port.hprot"));
 		sc_trace(tf,	target_port.hwrite,		TR_NAME("target_port.hwrite"));
+		sc_trace(tf,	target_port.hburst,		TR_NAME("target_port.hburst"));
+		sc_trace(tf,	target_port.hsize,		TR_NAME("target_port.hsize"));
+		sc_trace(tf,	target_port.hwdata,		TR_NAME("target_port.hwdata"));
+		sc_trace(tf,	target_port.hmastlock,	TR_NAME("target_port.hmastlock"));
+		sc_trace(tf,	target_port.hprot,		TR_NAME("target_port.hprot"));
+
+		sc_trace(tf,	target_port.hreadyout,	TR_NAME("target_port.hreadyout"));
 		sc_trace(tf,	target_port.hready,		TR_NAME("target_port.hready"));
 		sc_trace(tf,	target_port.pstrb,		TR_NAME("target_port.pstrb"));
-		sc_trace(tf,	target_port.hwdata,		TR_NAME("target_port.hwdata"));
 		sc_trace(tf,	target_port.hrdata,		TR_NAME("target_port.hrdata"));
 
 	}
@@ -597,7 +671,6 @@ public:
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH>
 class ahb3_lite_base_port<ADWIDTH,BUSWIDTH,TLM2LT>:public tlm_initiator_socket<BUSWIDTH>{
 public:
-
 	typedef tlm_initiator_socket<BUSWIDTH> base_type;
 	ahb3_lite_base_port(const sc_module_name name=sc_gen_unique_name("ahb3_lite_base_port")):base_type(name){}
 };
@@ -611,7 +684,7 @@ public:
 };
 
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH>
-class ahb3_lite_port<ADWIDTH,BUSWIDTH,TLM2LT>:public tlm_initiator_socket<BUSWIDTH>, public tlm_bw_transport_if<>, ahb3_lite_interface<ADWIDTH,BUSWIDTH>{
+class ahb3_lite_port<ADWIDTH,BUSWIDTH,TLM2LT>:public tlm_initiator_socket<BUSWIDTH>, public tlm_bw_transport_if<>, public ahb3_lite_interface<ADWIDTH,BUSWIDTH>{
 public:
 	typedef tlm_initiator_socket<BUSWIDTH> base_type;
 	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
@@ -626,7 +699,8 @@ public:
 	sc_in<bool> hclk;
 	sc_in<bool> nreset;
 
-	ahb3_lite_port(const sc_module_name name=sc_gen_unique_name("ahb3_lite_port")):base_type(name),hclk(PIN_NAME(name,"pclk")),nreset(PIN_NAME(name,"nreset")){
+	ahb3_lite_port(const sc_module_name name=sc_gen_unique_name("ahb3_lite_port")):base_type(name)
+	,hclk(PIN_NAME(name,"pclk")),nreset(PIN_NAME(name,"nreset")){
 		(base_type::get_base_export())(*this);
 	}
 
@@ -651,9 +725,9 @@ public:
 		 (*this)->b_transport(trans,time);
 
 		 if( trans.get_response_status() == TLM_ADDRESS_ERROR_RESPONSE ){
-			 return false;
+			 return if_type::EORROR;
 		 }else{
-			 return true;
+			 return if_type::OKAY;
 		 }
 	}
 
@@ -665,15 +739,15 @@ public:
 		 (*this)->b_transport(trans,time);
 
 		 if( trans.get_response_status() == TLM_ADDRESS_ERROR_RESPONSE ){
-			 return false;
+			 return if_type::EORROR;
 		 }else{
-			 return true;
+			 return if_type::OKAY;
 		 }
 	}
 };
 
 template<unsigned int ADWIDTH, unsigned int BUSWIDTH>
-class ahb3_lite_export<ADWIDTH,BUSWIDTH,TLM2LT>:public tlm_target_socket<BUSWIDTH>, public tlm_fw_transport_if<>, ahb3_lite_interface<ADWIDTH,BUSWIDTH>{
+class ahb3_lite_export<ADWIDTH,BUSWIDTH,TLM2LT>:public tlm_target_socket<BUSWIDTH>, public tlm_fw_transport_if<>, public ahb3_lite_interface<ADWIDTH,BUSWIDTH>{
 public:
 	typedef tlm_target_socket<BUSWIDTH> base_type;
 	typedef ahb3_lite_interface<ADWIDTH,BUSWIDTH> if_type;
@@ -688,12 +762,29 @@ public:
 	sc_in<bool> hclk;
 	sc_in<bool> nreset;
 
-	ahb3_lite_export(const sc_module_name name=sc_gen_unique_name("ahb3_lite_export")):base_type(name),hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
+	ahb3_lite_export(const sc_module_name name=sc_gen_unique_name("ahb3_lite_export")):base_type(name)
+	,hclk(PIN_NAME(name,"hclk")),nreset(PIN_NAME(name,"nreset")){
 		(base_type::get_base_export())(*this);
 	}
 
 	void b_transport( tlm::tlm_generic_payload &trans, sc_time &time ) {
-	    trans.set_response_status( tlm::TLM_OK_RESPONSE );
+		bool resp = if_type::OKAY;
+
+		uint64 ad = trans.get_address();
+		unsigned int length = trans.get_data_length();
+		unsigned char* dt = trans.get_data_ptr();
+		unsigned char* mask = trans.get_byte_enable_ptr();
+
+		if( trans.is_write() == true ){
+			//resp;// = ahb_lite_write(trans.get_address());
+		}
+
+
+		if( resp == if_type::OKAY ){
+			trans.set_response_status( tlm::TLM_OK_RESPONSE );
+		}else{
+			trans.set_response_status( tlm::TLM_ADDRESS_ERROR_RESPONSE );
+		}
 	}
 
 	tlm::tlm_sync_enum nb_transport_fw(tlm::tlm_generic_payload &trans, tlm::tlm_phase &phase, sc_time &time ){
